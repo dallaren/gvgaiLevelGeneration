@@ -15,9 +15,15 @@ public class Shared {
     //game description for the game the level is being generated for
     public static GameDescription game;
 
-    //the minimum size (width and height) of a level
+    //the minimum size (width or height) of a level
     public static final int MIN_SIZE = 6;
 
-    //the maximum size (width and height) of a level
+    //the maximum size (width or height) of a level
     public static final int MAX_SIZE = 18;
+
+    //width of the level being generated
+    public static int width;
+
+    //height of the level being generated
+    public static int height;
 }

@@ -7,13 +7,11 @@ import java.util.Comparator;
 
 import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
 
-public class Individual implements Comparator<Individual> {
+public class Individual implements Comparable<Individual> {
     private char[][] level;
-    private int size;
 
-    public Individual(int size) {
-        this.size = size;
-        level = new char[size][size];
+    public Individual(int height, int width) {
+        level = new char[height][width];
     }
 
     public void initializeRandom() {
@@ -22,8 +20,8 @@ public class Individual implements Comparator<Individual> {
 
     //randomly mutate a single tile in the level
     public void mutate() {
-        int row = random.nextInt(size);
-        int col = random.nextInt(size);
+        int row = random.nextInt(height);
+        int col = random.nextInt(width);
         char c = getRandomCharFromLevelMapping();
 
         level[row][col] = c;
@@ -37,16 +35,17 @@ public class Individual implements Comparator<Individual> {
 
     //do a crossover around a random row or column
     public Iterable<Individual> crossOver(Individual partner) {
-        ArrayList<Individual> offspring = new ArrayList<>(2);
-        Individual child1 = new Individual(size);
-        Individual child2 = new Individual(size);
+        ArrayList<Individual> children = new ArrayList<>(2);
+        Individual child1 = new Individual(height, width);
+        Individual child2 = new Individual(height, width);
 
-        int crossOverPoint = random.nextInt(size);
-        boolean splitX = random.nextBoolean();
+        //do a vertical split
+        boolean splitHorizontal = random.nextBoolean();
+        int crossOverPoint = splitHorizontal ? random.nextInt(height) : random.nextInt(width);
 
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                if (splitX) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (splitHorizontal) {
                     if (row > crossOverPoint) {
                         child1.getLevel()[row][col] = this.level[row][col];
                         child2.getLevel()[row][col] = partner.getLevel()[row][col];
@@ -68,9 +67,9 @@ public class Individual implements Comparator<Individual> {
 
         child1.constrainLevel();
         child2.constrainLevel();
-        offspring.add(child1);
-        offspring.add(child2);
-        return offspring;
+        children.add(child1);
+        children.add(child2);
+        return children;
     }
 
     //make sure the level well-formed
@@ -80,7 +79,11 @@ public class Individual implements Comparator<Individual> {
 
     //make sure the level has at most 1 avatar
     private void constrainAvatar() {
-        throw new NotImplementedException();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+
+            }
+        }
     }
 
     public int fitness() {
@@ -90,7 +93,22 @@ public class Individual implements Comparator<Individual> {
     public char[][] getLevel() { return level; }
 
     @Override
-    public int compare(Individual o1, Individual o2) {
-        throw new NotImplementedException();
+    public int compareTo(Individual that) {
+        return this.fitness() - that.fitness();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                stringBuilder.append(level[row][col]);
+            }
+            stringBuilder.append("\n");
+        }
+
+        //trim off the trailing newline
+        return stringBuilder.toString().trim();
     }
 }

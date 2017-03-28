@@ -2,6 +2,8 @@ package levelGenerators.jaspGeneticLevelGenerator;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -25,6 +27,7 @@ public class Individual implements Comparable<Individual> {
         char c = getRandomCharFromLevelMapping();
 
         level[row][col] = c;
+        constrainLevel();
     }
 
     private char getRandomCharFromLevelMapping() {
@@ -39,10 +42,12 @@ public class Individual implements Comparable<Individual> {
         Individual child1 = new Individual(height, width);
         Individual child2 = new Individual(height, width);
 
-        //do a vertical split
+        //decide whether a horizontal or vertical split is to be made
         boolean splitHorizontal = random.nextBoolean();
         int crossOverPoint = splitHorizontal ? random.nextInt(height) : random.nextInt(width);
 
+        //child1 inherits everything above the crossOverPoint from this parent, the rest from the partner
+        //child2 inherits everything above the crossOverPoint from the partner, the rest from this parent
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (splitHorizontal) {
@@ -65,8 +70,10 @@ public class Individual implements Comparable<Individual> {
             }
         }
 
+        //make sure the children are well-formed
         child1.constrainLevel();
         child2.constrainLevel();
+
         children.add(child1);
         children.add(child2);
         return children;
@@ -79,10 +86,24 @@ public class Individual implements Comparable<Individual> {
 
     //make sure the level has at most 1 avatar
     private void constrainAvatar() {
+        ArrayList<Point> avatarPositions = new ArrayList<>(width*height);
+
+        //find the positions of all avatars in the level
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-
+                if (level[row][col] == 'A') {
+                    avatarPositions.add(new Point(col,row));
+                }
             }
+        }
+
+        //if there is more than 1 avatar, choose a random one to remove
+        if (avatarPositions.size() > 1) {
+            int index = random.nextInt(avatarPositions.size());
+            Point avatarPosition = avatarPositions.get(index);
+            int avatarRow = (int) avatarPosition.getY();
+            int avatarCol = (int) avatarPosition.getX();
+            level[avatarRow][avatarCol] = ' ';
         }
     }
 

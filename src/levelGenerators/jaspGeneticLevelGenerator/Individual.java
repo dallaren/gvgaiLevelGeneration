@@ -1,23 +1,36 @@
 package levelGenerators.jaspGeneticLevelGenerator;
 
+import core.game.StateObservation;
+import core.player.AbstractPlayer;
+import ontology.Types;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import tools.ElapsedCpuTimer;
+import tools.StepController;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
 
 public class Individual implements Comparable<Individual> {
     private char[][] level;
+    private boolean calculated;
+    private double fitness;
+
+    private AbstractPlayer doNothingController;
+    private AbstractPlayer oneStepLookAheadController;
+    private AbstractPlayer bestController;
+
+    private StateObservation stateObservation;
 
     public Individual(int height, int width) {
         level = new char[height][width];
     }
 
     public void initializeRandom() {
+        initControllers();
         throw new NotImplementedException();
+
     }
 
     //randomly mutate a single tile in the level
@@ -107,15 +120,76 @@ public class Individual implements Comparable<Individual> {
         }
     }
 
-    public int fitness() {
-        throw new NotImplementedException();
+    public double fitness(long maxTime) {
+
+        if (calculated) {
+            return fitness;
+        }
+
+        calculated = true;
+
+        //play a single game with the best controller
+        //TODO change controller to be the best, not the one step look-ahead
+        StepController bestController = new StepController(oneStepLookAheadController, MAX_STEP_TIME);
+        ElapsedCpuTimer timer = new ElapsedCpuTimer();
+        timer.setMaxTimeMillis(maxTime);
+        bestController.playGame(stateObservation.copy(), timer);
+
+        ArrayList<Types.ACTIONS> bestSolution = bestController.getSolution();
+        StateObservation bestState = bestController.getFinalState();
+
+        
+        StateObservation doNothingState;
+        int minDoNothingSteps = Integer.MAX_VALUE;
+        for (int i = 0; i < REPETITION_AMOUNT; i++) {
+            StateObservation tempState = stateObservation.copy();
+            int steps = getControllerSteps(doNothingController, tempState, bestSolution.size());
+            if (steps < minDoNothingSteps) {
+                minDoNothingSteps = steps;
+                doNothingState = tempState;
+            }
+        }
+
+    }
+
+
+    private int getControllerSteps(AbstractPlayer controller, StateObservation state, int maxSteps) {
+        int step;
+        for (step = 0; step < maxSteps; step++) {
+            if (state.isGameOver()) {
+                break;
+            }
+            state.advance(controller.act(state, null));
+        }
+        return step;
+    }
+
+    private void initControllers() {
+        doNothingController = new controllers.singlePlayer.doNothing.
+                Agent(getStateObservation().copy(), null);
+        oneStepLookAheadController = new controllers.singlePlayer.sampleonesteplookahead.
+                Agent(getStateObservation().copy(), null);
+        bestController = null; //TODO find a good controller
+    }
+
+    private StateObservation getStateObservation() {
+        if (stateObservation != null) {
+            return stateObservation;
+        }
+
+        stateObservation = game.testLevel(getLevelString());
+        return stateObservation;
     }
 
     public char[][] getLevel() { return level; }
 
+    public String getLevelString() {
+        return toString();
+    }
+
     @Override
     public int compareTo(Individual that) {
-        return this.fitness() - that.fitness();
+        return (int)(this.fitness() - that.fitness());
     }
 
     @Override

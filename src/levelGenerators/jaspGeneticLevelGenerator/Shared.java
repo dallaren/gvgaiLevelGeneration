@@ -21,6 +21,17 @@ public class Shared {
     //the maximum size (width or height) of a level
     public static final int MAX_SIZE = 18;
 
+    //the probability of a mutation happening
+    public static final double PROB_MUTATION = 0.05;
+
+    //the probability of a crossover happening
+    public static final double PROB_CROSSOVER = 0.5;
+
+    //the maximum allowed time for the step controller to evaluate a step (in ms)
+    public static final long MAX_STEP_TIME = 50;
+
+    public static final int REPETITION_AMOUNT = 50;
+
     //width of the level being generated
     public static int width;
 

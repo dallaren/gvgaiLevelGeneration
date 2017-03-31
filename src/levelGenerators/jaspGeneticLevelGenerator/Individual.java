@@ -102,10 +102,11 @@ public class Individual implements Comparable<Individual> {
 
         children.add(child1);
         children.add(child2);
+
         return children;
     }
 
-    //make sure the level well-formed
+    //make sure the level is well-formed
     private void constrainLevel() {
         constrainAvatar();
     }
@@ -164,6 +165,8 @@ public class Individual implements Comparable<Individual> {
                 doNothingState = tempState;
             }
         }
+
+
 
         calculated = true;
         return 1;

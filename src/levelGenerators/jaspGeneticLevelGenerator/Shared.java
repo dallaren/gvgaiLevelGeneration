@@ -21,7 +21,7 @@ public class Shared {
     //the maximum size (width or height) of a level
     public static final int MAX_SIZE = 18;
 
-    //the percentage of the level
+    //the percentage of the level to be filled on initialization
     public static final double RANDOM_FILL_FACTOR = 0.20;
 
     //the probability of a mutation happening

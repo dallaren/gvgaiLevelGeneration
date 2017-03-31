@@ -21,6 +21,8 @@ public class Shared {
     //the maximum size (width or height) of a level
     public static final int MAX_SIZE = 18;
 
+    public static final double RANDOM_FILL_FACTOR = 0.20;
+
     //width of the level being generated
     public static int width;
 

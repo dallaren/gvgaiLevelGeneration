@@ -1,0 +1,19 @@
+LevelMapping
+    0 > background base 
+    A > background avatar 
+    1 > background portalSlow 
+    2 > background portalFast 
+    w > wall 
+    . > background 
+
+LevelDescription
+   21  2  
+  w  .22  
+   0      
+ 0   A    
+    1A   1
+   0  1  w
+    w     
+     .    
+   0      
+  A      0

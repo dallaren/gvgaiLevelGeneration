@@ -30,6 +30,7 @@ public class Test {
 	String randomLevelGenerator = "levelGenerators.randomLevelGenerator.LevelGenerator";
 	String geneticGenerator = "levelGenerators.geneticLevelGenerator.LevelGenerator";
 	String constructiveLevelGenerator = "levelGenerators.constructiveLevelGenerator.LevelGenerator";
+    String myLevelGenerator = "levelGenerators.jaspGeneticLevelGenerator.LevelGenerator";
 
 	// Available Rule Generator
 	String randomRuleGenerator = "ruleGenerators.randomRuleGenerator.RuleGenerator";
@@ -83,7 +84,7 @@ public class Test {
 //	ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
 	// 2. This plays a game in a level by the controller.
-	ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed, 0);
+//	ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed, 0);
 
 
 	// 3. This replays a game from an action file previously recorded
@@ -100,10 +101,10 @@ public class Test {
 //	}
 
 	// 5. This starts a game, in a generated level created by a specific level generator
-//	 if(ArcadeMachine.generateOneLevel(game, randomLevelGenerator, recordLevelFile)){
-//		 ArcadeMachine.playOneGeneratedLevel(game, recordActionsFile,
-//		 recordLevelFile, seed);
-//	 }
+	 if(ArcadeMachine.generateOneLevel(game, myLevelGenerator, recordLevelFile)){
+		 ArcadeMachine.playOneGeneratedLevel(game, recordActionsFile,
+		 recordLevelFile, seed);
+	 }
 
 	//6. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
 //	int N = 92, L = 5, M = 10;

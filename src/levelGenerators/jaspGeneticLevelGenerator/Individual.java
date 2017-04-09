@@ -2,6 +2,7 @@ package levelGenerators.jaspGeneticLevelGenerator;
 
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
+import levelGenerators.constraints.CombinedConstraints;
 import ontology.Types;
 
 import tools.ElapsedCpuTimer;
@@ -9,6 +10,7 @@ import tools.StepController;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
@@ -154,9 +156,9 @@ public class Individual implements Comparable<Individual> {
         ArrayList<Types.ACTIONS> bestSolution = bestController.getSolution();
         StateObservation bestState = bestController.getFinalState();
 
-
-        StateObservation doNothingState;
+        StateObservation doNothingState = null;
         int minDoNothingSteps = Integer.MAX_VALUE;
+        //play the game a number of times with the doNothing agent
         for (int i = 0; i < REPETITION_AMOUNT; i++) {
             StateObservation tempState = stateObservation.copy();
             int steps = getControllerSteps(doNothingController, tempState, bestSolution.size());
@@ -166,21 +168,63 @@ public class Individual implements Comparable<Individual> {
             }
         }
 
+        HashMap<String, Object> constraintParameters = new HashMap<>();
+        constraintParameters.put("minSolutionLength", MIN_SOLUTION_LENGTH);
+        constraintParameters.put("solutionLength", bestSolution.size());
+        constraintParameters.put("bestPlayer", bestState.getGameWinner());
+        constraintParameters.put("minDoNothingSteps", MIN_DO_NOTHING_STEPS);
+        constraintParameters.put("doNothingSteps", minDoNothingSteps);
+        constraintParameters.put("doNothingState", doNothingState.getGameWinner());
+        constraintParameters.put("minCoverPercentage", MIN_COVER_PERCENTAGE);
+        constraintParameters.put("maxCoverPercentage", MAX_COVER_PERCENTAGE);
 
+        double coverPercentage = getCoverPercentage();
+        constraintParameters.put("coverPercentage", coverPercentage);
+
+        CombinedConstraints combinedConstraints = new CombinedConstraints();
+
+        String[] constraints = new String[] {
+                "SolutionLengthConstraint",
+                "WinConstraint",
+                "DeathConstraint",
+                "CoverPercentageConstraint"
+        };
+
+        combinedConstraints.addConstraints(constraints);
+        combinedConstraints.setParameters(constraintParameters);
+
+        double constraintFitness = combinedConstraints.checkConstraint();
+        System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + minDoNothingSteps + " coverPercentage:" + coverPercentage + " bestPlayer:" + bestState.getGameWinner());
 
         calculated = true;
         return 1;
     }
 
+    //TODO check if this actually works or if it does reference checking (probably not)
+    private double getCoverPercentage() {
+        Set<Character> mappingChars = game.getLevelMapping().keySet();
+        int sprites = 0;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (mappingChars.contains(level[y][x])) {
+                    sprites++;
+                }
+            }
+        }
+
+        return sprites / (width*height);
+    }
+
     private int getControllerSteps(AbstractPlayer controller, StateObservation state, int maxSteps) {
-        int step;
-        for (step = 0; step < maxSteps; step++) {
+        int steps;
+        for (steps = 0; steps < maxSteps; steps++) {
             if (state.isGameOver()) {
                 break;
             }
             state.advance(controller.act(state, null));
         }
-        return step;
+        return steps;
     }
 
     private void initControllers() {
@@ -188,7 +232,7 @@ public class Individual implements Comparable<Individual> {
                 Agent(getStateObservation().copy(), null);
         oneStepLookAheadController = new controllers.singlePlayer.sampleonesteplookahead.
                 Agent(getStateObservation().copy(), null);
-        bestController = null; //TODO find a good controller
+        bestController = new MaastCTS2.Agent(getStateObservation().copy(), null);
     }
 
     private StateObservation getStateObservation() {

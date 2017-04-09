@@ -39,6 +39,18 @@ public class Shared {
     //the amount of times the test controllers play the level
     public static final int REPETITION_AMOUNT = 50;
 
+    //the minimum solution length of the level
+    public static final int MIN_SOLUTION_LENGTH = 150;
+
+    //the minimum amount of steps the doNothing agent must be able to survive
+    public static final int MIN_DO_NOTHING_STEPS = 50;
+
+    //the minimum percentage of the level to be covered
+    public static final double MIN_COVER_PERCENTAGE = 0.1;
+
+    //the maximum percentage of the level to be covered
+    public static final double MAX_COVER_PERCENTAGE = 0.4;
+
     //width of the level being generated
     public static int width;
 

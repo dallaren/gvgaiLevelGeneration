@@ -18,8 +18,8 @@ public class GoalConstraint extends AbstractConstraint{
 	public GameDescription gameDescription;
 	
 	/**
-	 * Check if all terminate conditions are unsatisfiable
-	 * @return	return 1 if all conditions are unsatisfiable and percentage
+	 * Check if all terminate conditions are satisfiable
+	 * @return	return 1 if all conditions are satisfiable and percentage
 	 * 			of unsatisfied conditions otherwise
 	 */
 	@Override

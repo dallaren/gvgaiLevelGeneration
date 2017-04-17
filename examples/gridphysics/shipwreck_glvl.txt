@@ -1,0 +1,21 @@
+LevelMapping
+    A > water avatar 
+    1 > water portGold 
+    2 > water portGems 
+    3 > water portDiamonds 
+    s > water shipwreck goldhole gemshole diamondshole 
+    w > water whirlpool 
+    x > water land 
+    . > water 
+
+LevelDescription
+xxxxxxxxxx
+x........x
+x.x..1.21x
+x..A....wx
+x.......1x
+xx....s..x
+x......A.x
+xx.......x
+x...1....x
+xxxxxxxxxx

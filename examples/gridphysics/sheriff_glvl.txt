@@ -1,0 +1,26 @@
+LevelMapping
+    A > floor avatar 
+    d > floor surround bdown 
+    l > floor surround bleft 
+    . > floor 
+    0 > floor base 
+    1 > floor turnup 
+    r > floor surround bright 
+    2 > floor turnleft 
+    s > floor surround 
+    3 > floor turndown 
+    4 > floor turnright 
+    u > floor surround bup 
+    w > floor wall 
+
+LevelDescription
+wwwwwwwwww
+w2.3..d..w
+w.lw.l..sw
+w...2... w
+w.0...d..w
+w......r2w
+w.A.s....w
+w..r.1...w
+w....d...w
+wwwwwwwwww

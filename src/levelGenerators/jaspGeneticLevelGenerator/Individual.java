@@ -20,25 +20,24 @@ public class Individual implements Comparable<Individual> {
     private char[][] level;
     private boolean calculated;
     private double fitness;
-    private boolean hasBorder;
+    private int borderThickness;
 
     private AbstractPlayer doNothingController;
     private AbstractPlayer oneStepLookAheadController;
-    private AbstractPlayer bestController;
+    private AbstractPlayer MaastController;
 
     private StateObservation stateObservation;
 
     public Individual() {
         level = new char[height][width];
         initializeLevel();
-        System.out.println(hasBorder);
     }
 
     private void initializeLevel() {
-        hasBorder = false;
+        borderThickness = 0;
         if (hasSolidSprites()) {
             addBorder();
-            hasBorder = true;
+            borderThickness = 1;
         }
     }
 
@@ -56,18 +55,17 @@ public class Individual implements Comparable<Individual> {
                 if (row == 0 || row == height-1 || col == 0 || col == width-1) {
                     level[row][col] = solidSprite;
                 } else {
-                    level[row][col] = ' ';
+                    level[row][col] = '.';
                 }
             }
         }
     }
 
-    //get the mapping for a random solid sprite from the game
+    //get the mapping for a solid sprite from the game
     private char getSolidSpriteChar() {
-        ArrayList<String> solidSprites = gameAnalyzer.getSolidSprites();
-        String solidSpriteString = solidSprites.get(random.nextInt(solidSprites.size()));
+        String solidSpriteString = gameAnalyzer.getSolidSprites().get(0);
+        char solidSpriteChar = '.';
 
-        char solidSpriteChar = ' ';
         for (Map.Entry<Character, ArrayList<String>> entry : game.getLevelMapping().entrySet()) {
             char charMapping = entry.getKey();
             ArrayList<String> spriteStrings = entry.getValue();
@@ -82,26 +80,26 @@ public class Individual implements Comparable<Individual> {
         return solidSpriteChar;
     }
 
+    //TODO make this mutate instead
     public void initializeRandom() {
 
-        int borderThickness = hasBorder ? 1 : 0;
         for (int row = borderThickness; row < (width - borderThickness); row++) {
             for (int col = borderThickness; col < (height - borderThickness); col++) {
                 if (random.nextDouble() < RANDOM_FILL_FACTOR) {
                     level[row][col] = getRandomCharFromLevelMapping();
                 } else {
-                    level[row][col] = ' ';
+                    level[row][col] = '.';
                 }
             }
         }
         initControllers();
     }
 
+    //TODO add other mutation outcomes (delete, swap)
     //randomly mutate a single tile in the level
-    //TODO add ' ' to possible chars
     public void mutate() {
-        int row = random.nextInt(height);
-        int col = random.nextInt(width);
+        int row = random.nextInt(height - 2*borderThickness) + borderThickness;
+        int col = random.nextInt(width - 2*borderThickness) + borderThickness;
 
         level[row][col] = getRandomCharFromLevelMapping();
         constrainLevel();
@@ -115,6 +113,7 @@ public class Individual implements Comparable<Individual> {
         return chars[c];
     }
 
+    //TODO make it around a point, not a row/col
     //do a crossover around a random row or column
     public Iterable<Individual> crossOver(Individual partner) {
         ArrayList<Individual> children = new ArrayList<>(2);
@@ -198,8 +197,8 @@ public class Individual implements Comparable<Individual> {
 
     private double calculateFitness(long maxTime) {
         //play a single game with the best controller
-        //TODO change controller to be the best, not the one step look-ahead
-        StepController bestController = new StepController(oneStepLookAheadController, MAX_STEP_TIME);
+        //TODO slow this guy down a little bit, a tad too inhuman
+        StepController bestController = new StepController(MaastController, MAX_STEP_TIME);
         ElapsedCpuTimer timer = new ElapsedCpuTimer();
         timer.setMaxTimeMillis(maxTime);
         bestController.playGame(stateObservation.copy(), timer);
@@ -297,7 +296,7 @@ public class Individual implements Comparable<Individual> {
                 Agent(getStateObservation().copy(), null);
         oneStepLookAheadController = new controllers.singlePlayer.sampleonesteplookahead.
                 Agent(getStateObservation().copy(), null);
-        bestController = new MaastCTS2.Agent(getStateObservation().copy(), new ElapsedCpuTimer());
+        MaastController = new MaastCTS2.Agent(getStateObservation().copy(), new ElapsedCpuTimer());
     }
 
     private StateObservation getStateObservation() {

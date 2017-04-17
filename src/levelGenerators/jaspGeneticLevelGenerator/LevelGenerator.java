@@ -22,8 +22,12 @@ public class LevelGenerator extends AbstractLevelGenerator{
 
     private void test() {
         test = new Individual();
+        Individual test2 = new Individual();
         test.initializeRandom();
+        test.mutate();
+        test.crossOver(test2);
         test.print();
+        test.fitness();
     }
 
     @Override

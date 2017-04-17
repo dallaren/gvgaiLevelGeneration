@@ -38,7 +38,7 @@ public class Shared {
     public static final long MAX_STEP_TIME = 50;
 
     //the maximum allowed time for evaluating fitness (in ms)
-    public static final long EVALUATION_TIME = 100;
+    public static final long EVALUATION_TIME = 15000;
 
     //the amount of times the test controllers play the level
     public static final int REPETITION_AMOUNT = 50;

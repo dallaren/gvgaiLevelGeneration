@@ -1,0 +1,19 @@
+LevelMapping
+    A > floor avatar 
+    c > floor city 
+    f > floor incoming_fast 
+    w > wall 
+    m > floor incoming_slow 
+    . > floor 
+
+LevelDescription
+   f      
+mc   c    
+   w      
+.         
+fm        
+ w   A m  
+     m    
+   f      
+     .    
+c  c      

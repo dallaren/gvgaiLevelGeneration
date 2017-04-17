@@ -1,6 +1,7 @@
 package levelGenerators.jaspGeneticLevelGenerator;
 
 import core.game.GameDescription;
+import tools.GameAnalyzer;
 
 import java.util.Random;
 
@@ -14,6 +15,9 @@ public class Shared {
 
     //game description for the game the level is being generated for
     public static GameDescription game;
+
+    //game analyzer for more helpful information about the current game
+    public static GameAnalyzer gameAnalyzer;
 
     //the minimum size (width or height) of a level
     public static final int MIN_SIZE = 6;

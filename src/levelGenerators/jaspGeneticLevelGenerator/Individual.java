@@ -11,6 +11,7 @@ import tools.StepController;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
@@ -19,6 +20,7 @@ public class Individual implements Comparable<Individual> {
     private char[][] level;
     private boolean calculated;
     private double fitness;
+    private boolean hasBorder;
 
     private AbstractPlayer doNothingController;
     private AbstractPlayer oneStepLookAheadController;
@@ -28,11 +30,63 @@ public class Individual implements Comparable<Individual> {
 
     public Individual() {
         level = new char[height][width];
+        initializeLevel();
+        System.out.println(hasBorder);
+    }
+
+    private void initializeLevel() {
+        hasBorder = false;
+        if (hasSolidSprites()) {
+            addBorder();
+            hasBorder = true;
+        }
+    }
+
+    //ask the game analyzer if the game has any solid sprites to use as a border
+    private boolean hasSolidSprites() {
+        return !gameAnalyzer.getSolidSprites().isEmpty();
+    }
+
+    //add a solid border around the level with a thickness of 1
+    private void addBorder() {
+        char solidSprite = getSolidSpriteChar();
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (row == 0 || row == height-1 || col == 0 || col == width-1) {
+                    level[row][col] = solidSprite;
+                } else {
+                    level[row][col] = ' ';
+                }
+            }
+        }
+    }
+
+    //get the mapping for a random solid sprite from the game
+    private char getSolidSpriteChar() {
+        ArrayList<String> solidSprites = gameAnalyzer.getSolidSprites();
+        String solidSpriteString = solidSprites.get(random.nextInt(solidSprites.size()));
+
+        char solidSpriteChar = ' ';
+        for (Map.Entry<Character, ArrayList<String>> entry : game.getLevelMapping().entrySet()) {
+            char charMapping = entry.getKey();
+            ArrayList<String> spriteStrings = entry.getValue();
+
+            for (int i = 0; i < spriteStrings.size(); i++) {
+                if (spriteStrings.get(i).equals(solidSpriteString)) {
+                    solidSpriteChar = charMapping;
+                    break;
+                }
+            }
+        }
+        return solidSpriteChar;
     }
 
     public void initializeRandom() {
-        for (int row = 0; row < width; row++) {
-            for (int col = 0; col < height; col++) {
+
+        int borderThickness = hasBorder ? 1 : 0;
+        for (int row = borderThickness; row < (width - borderThickness); row++) {
+            for (int col = borderThickness; col < (height - borderThickness); col++) {
                 if (random.nextDouble() < RANDOM_FILL_FACTOR) {
                     level[row][col] = getRandomCharFromLevelMapping();
                 } else {
@@ -54,9 +108,7 @@ public class Individual implements Comparable<Individual> {
     }
 
     private char getRandomCharFromLevelMapping() {
-        //Character[] mappingChars = (Character[]) game.getLevelMapping().keySet().toArray();
         Set<Character> mappingChars = game.getLevelMapping().keySet();
-        //mappingChars.add(' ');
         Character[] chars = mappingChars.toArray(new Character[mappingChars.size()]);
 
         int c = random.nextInt(chars.length);
@@ -218,9 +270,9 @@ public class Individual implements Comparable<Individual> {
         Set<Character> mappingChars = game.getLevelMapping().keySet();
         int sprites = 0;
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (mappingChars.contains(level[y][x])) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (mappingChars.contains(level[row][col])) {
                     sprites++;
                 }
             }

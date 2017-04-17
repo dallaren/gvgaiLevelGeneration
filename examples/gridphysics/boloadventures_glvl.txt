@@ -1,0 +1,24 @@
+LevelMapping
+    0 > hole ground 
+    A > avatar ground 
+    b > box ground 
+    r > lcright ground 
+    c > boulder ground 
+    d > lcdown ground 
+    u > lcup ground 
+    w > wall 
+    g > goal ground 
+    l > lcleft ground 
+    . > ground 
+
+LevelDescription
+0  A     g
+ b   dA   
+    A 0   
+          
+    A     
+b         
+          
+    .    w
+   b  g   
+     .    

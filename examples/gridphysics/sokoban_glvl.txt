@@ -1,0 +1,18 @@
+LevelMapping
+    0 > floor hole 
+    A > floor avatar 
+    1 > floor box 
+    w > floor wall 
+    . > floor 
+
+LevelDescription
+wwwwwwwwww
+w w A10  w
+w   0 1  w
+w        w
+w    1  .w
+w   1    w
+w0 A   A1w
+w    A   w
+w      w w
+wwwwwwwwww

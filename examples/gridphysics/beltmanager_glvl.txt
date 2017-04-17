@@ -1,0 +1,25 @@
+LevelMapping
+    p > floor passenger 
+    A > avatar floor 
+    1 > leverUp floor 
+    2 > leverRight floor 
+    b > belt 
+    3 > leverDown floor 
+    s > belt suitcase 
+    4 > leverLeft floor 
+    d > floor death 
+    w > wall 
+    j > jointRight belt 
+    . > floor 
+
+LevelDescription
+  .  w p  
+  d       
+    s     
+p b    3  
+   A      
+ d        
+          
+s3     3  
+s    b p  
+A       j 

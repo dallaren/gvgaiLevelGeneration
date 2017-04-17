@@ -31,8 +31,6 @@ public class Individual implements Comparable<Individual> {
     }
 
     public void initializeRandom() {
-        initControllers();
-
         for (int row = 0; row < width; row++) {
             for (int col = 0; col < height; col++) {
                 if (random.nextDouble() < RANDOM_FILL_FACTOR) {
@@ -42,6 +40,7 @@ public class Individual implements Comparable<Individual> {
                 }
             }
         }
+        initControllers();
     }
 
     //randomly mutate a single tile in the level
@@ -161,7 +160,7 @@ public class Individual implements Comparable<Individual> {
         //play the game a number of times with the doNothing agent
         for (int i = 0; i < REPETITION_AMOUNT; i++) {
             StateObservation tempState = stateObservation.copy();
-            int steps = getControllerSteps(doNothingController, tempState, bestSolution.size());
+            int steps = getControllerResult(doNothingController, tempState, bestSolution.size());
             if (steps < minDoNothingSteps) {
                 minDoNothingSteps = steps;
                 doNothingState = tempState;
@@ -196,8 +195,22 @@ public class Individual implements Comparable<Individual> {
         double constraintFitness = combinedConstraints.checkConstraint();
         System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + minDoNothingSteps + " coverPercentage:" + coverPercentage + " bestPlayer:" + bestState.getGameWinner());
 
+        if (constraintFitness >= 1) {
+            StateObservation oneStepLookAheadState = null;
+            for (int i = 0; i < REPETITION_AMOUNT; i++) {
+                StateObservation tempState = stateObservation.copy();
+                getControllerResult(oneStepLookAheadController, tempState, bestSolution.size());
+                if (oneStepLookAheadState == null || tempState.getGameScore() > oneStepLookAheadState.getGameScore()) {
+                    oneStepLookAheadState = tempState;
+                }
+            }
+
+            //score difference
+            fitness = bestState.getGameScore() - oneStepLookAheadState.getGameScore();
+        }
+
         calculated = true;
-        return 1;
+        return fitness;
     }
 
     //TODO check if this actually works or if it does reference checking (probably not)
@@ -216,7 +229,7 @@ public class Individual implements Comparable<Individual> {
         return sprites / (width*height);
     }
 
-    private int getControllerSteps(AbstractPlayer controller, StateObservation state, int maxSteps) {
+    private int getControllerResult(AbstractPlayer controller, StateObservation state, int maxSteps) {
         int steps;
         for (steps = 0; steps < maxSteps; steps++) {
             if (state.isGameOver()) {
@@ -232,7 +245,7 @@ public class Individual implements Comparable<Individual> {
                 Agent(getStateObservation().copy(), null);
         oneStepLookAheadController = new controllers.singlePlayer.sampleonesteplookahead.
                 Agent(getStateObservation().copy(), null);
-        bestController = new MaastCTS2.Agent(getStateObservation().copy(), null);
+        bestController = new MaastCTS2.Agent(getStateObservation().copy(), new ElapsedCpuTimer());
     }
 
     private StateObservation getStateObservation() {
@@ -265,7 +278,6 @@ public class Individual implements Comparable<Individual> {
             }
             stringBuilder.append("\n");
         }
-
         return stringBuilder.toString();
     }
 

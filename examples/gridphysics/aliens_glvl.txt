@@ -7,13 +7,13 @@ LevelMapping
     . > background 
 
 LevelDescription
-   21  2  
-  w  .22  
-   0      
- 0   A    
-    1A   1
-   0  1  w
-    w     
-     .    
-   0      
-  A      0
+   .      
+    A     
+          
+ 1        
+ 1w    .  
+2w0 .  w1 
+         0
+   w      
+ 0      w 
+    w2    

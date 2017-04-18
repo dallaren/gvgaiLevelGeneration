@@ -58,6 +58,9 @@ public class Shared {
 
     public static final int POPULATION_SIZE = 50;
 
+    //a small constant value
+    public static final double EPSILON = 0.000001;
+
     //width of the level being generated
     public static int width;
 

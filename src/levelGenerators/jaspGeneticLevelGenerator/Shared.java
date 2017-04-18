@@ -55,6 +55,9 @@ public class Shared {
     //the maximum percentage of the level to be covered
     public static final double MAX_COVER_PERCENTAGE = 0.4;
 
+
+    public static final int POPULATION_SIZE = 50;
+
     //width of the level being generated
     public static int width;
 

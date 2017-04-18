@@ -83,8 +83,8 @@ public class Individual implements Comparable<Individual> {
     //TODO make this mutate instead
     public void initializeRandom() {
 
-        for (int row = borderThickness; row < (width - borderThickness); row++) {
-            for (int col = borderThickness; col < (height - borderThickness); col++) {
+        for (int row = borderThickness; row < (height - borderThickness); row++) {
+            for (int col = borderThickness; col < (width - borderThickness); col++) {
                 if (random.nextDouble() < RANDOM_FILL_FACTOR) {
                     level[row][col] = getRandomCharFromLevelMapping();
                 } else {
@@ -165,6 +165,18 @@ public class Individual implements Comparable<Individual> {
 
     //make sure the level has at most 1 avatar
     private void constrainAvatar() {
+        ArrayList<Point> avatarPositions = getAvatarPositions();
+
+        if (avatarPositions.size() == 0) {
+            addAvatarToRandomTile();
+        }
+
+        if (avatarPositions.size() > 1) {
+            removeExcessAvatars(avatarPositions);
+        }
+    }
+
+    private ArrayList<Point> getAvatarPositions() {
         ArrayList<Point> avatarPositions = new ArrayList<>(width*height);
 
         //find the positions of all avatars in the level
@@ -175,32 +187,43 @@ public class Individual implements Comparable<Individual> {
                 }
             }
         }
+        return avatarPositions;
+    }
 
-        //if there is more than 1 avatar, choose a random one to remove
-        if (avatarPositions.size() > 1) {
-            int index = random.nextInt(avatarPositions.size());
-            Point avatarPosition = avatarPositions.get(index);
-            int avatarRow = (int) avatarPosition.getY();
-            int avatarCol = (int) avatarPosition.getX();
-            level[avatarRow][avatarCol] = ' ';
+    private void addAvatarToRandomTile() {
+        int avatarCol = random.nextInt(width - 2*borderThickness) + borderThickness;
+        int avatarRow = random.nextInt(height - 2*borderThickness) + borderThickness;
+        level[avatarRow][avatarCol] = 'A';
+    }
+
+    //picks a random avatar to keep and removes the others
+    private void removeExcessAvatars(ArrayList<Point> avatarPositions) {
+        int indexToKeep = random.nextInt(avatarPositions.size());
+        Point avatarToKeep = avatarPositions.get(indexToKeep);
+
+        for (Point avatarPosition : avatarPositions) {
+            if (!avatarPosition.equals(avatarToKeep)) {
+                int avatarRow = (int) avatarPosition.getY();
+                int avatarCol = (int) avatarPosition.getX();
+                level[avatarRow][avatarCol] = '.';
+            }
         }
     }
 
     public double fitness() {
-
         if (calculated) {
             return fitness;
         }
 
-        return calculateFitness(EVALUATION_TIME);
+        return calculateFitness();
     }
 
-    private double calculateFitness(long maxTime) {
+    private double calculateFitness() {
         //play a single game with the best controller
         //TODO slow this guy down a little bit, a tad too inhuman
         StepController bestController = new StepController(MaastController, MAX_STEP_TIME);
         ElapsedCpuTimer timer = new ElapsedCpuTimer();
-        timer.setMaxTimeMillis(maxTime);
+        timer.setMaxTimeMillis(EVALUATION_TIME);
         bestController.playGame(stateObservation.copy(), timer);
 
         ArrayList<Types.ACTIONS> bestSolution = bestController.getSolution();
@@ -260,34 +283,46 @@ public class Individual implements Comparable<Individual> {
             fitness = bestState.getGameScore() - oneStepLookAheadState.getGameScore();
         }
 
+
+        cleanUpControllers();
+
         calculated = true;
         return fitness;
     }
 
-    //TODO check if this actually works or if it does reference checking (probably not)
+    private void cleanUpControllers() {
+        doNothingController = null;
+        oneStepLookAheadController = null;
+        MaastController = null;
+    }
+
     private double getCoverPercentage() {
         Set<Character> mappingChars = game.getLevelMapping().keySet();
-        int sprites = 0;
+        double sprites = 0;
+        char sprite;
 
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                if (mappingChars.contains(level[row][col])) {
+        for (int row = borderThickness; row < (height - borderThickness); row++) {
+            for (int col = borderThickness; col < (width - borderThickness); col++) {
+                sprite = level[row][col];
+                if (mappingChars.contains(sprite) && sprite != '.') {
                     sprites++;
                 }
             }
         }
 
-        return sprites / (width*height);
+        return sprites / ((width-borderThickness)*(height-borderThickness));
     }
 
     private int getControllerResult(AbstractPlayer controller, StateObservation state, int maxSteps) {
         int steps;
+
         for (steps = 0; steps < maxSteps; steps++) {
             if (state.isGameOver()) {
                 break;
             }
             state.advance(controller.act(state, null));
         }
+
         return steps;
     }
 

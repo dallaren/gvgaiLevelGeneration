@@ -25,20 +25,25 @@ public class Shared {
     //the maximum size (width or height) of a level
     public static final int MAX_SIZE = 18;
 
+    public static final int POPULATION_SIZE = 50;
+
+    //the number of best individuals to keep
+    public static final int ELITE_SIZE = 2;
+
     //the percentage of the level to be filled on initialization
     public static final double RANDOM_FILL_FACTOR = 0.20;
 
     //the probability of a mutation happening
-    public static final double PROB_MUTATION = 0.05;
+    public static final double MUTATION_PROB = 0.05;
 
     //the probability of a crossover happening
-    public static final double PROB_CROSSOVER = 0.5;
+    public static final double CROSSOVER_PROB = 0.5;
 
     //the maximum allowed time for the step controller to evaluate a step (in ms)
     public static final long MAX_STEP_TIME = 50;
 
     //the maximum allowed time for evaluating fitness (in ms)
-    public static final long EVALUATION_TIME = 15000;
+    public static final long EVALUATION_TIME = 10000;
 
     //the amount of times the test controllers play the level
     public static final int REPETITION_AMOUNT = 50;
@@ -55,11 +60,8 @@ public class Shared {
     //the maximum percentage of the level to be covered
     public static final double MAX_COVER_PERCENTAGE = 0.4;
 
-
-    public static final int POPULATION_SIZE = 50;
-
     //a small constant value
-    public static final double EPSILON = 0.000001;
+    public static final double EPSILON = 1.0e-9;
 
     //width of the level being generated
     public static int width;

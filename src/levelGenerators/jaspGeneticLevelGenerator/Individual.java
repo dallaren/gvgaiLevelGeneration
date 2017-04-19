@@ -9,10 +9,7 @@ import tools.ElapsedCpuTimer;
 import tools.StepController;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
 
@@ -30,15 +27,6 @@ public class Individual implements Comparable<Individual> {
 
     public Individual() {
         level = new char[height][width];
-        initializeLevel();
-    }
-
-    private void initializeLevel() {
-        borderThickness = 0;
-        if (hasSolidSprites()) {
-            addBorder();
-            borderThickness = 1;
-        }
     }
 
     //ask the game analyzer if the game has any solid sprites to use as a border
@@ -83,6 +71,8 @@ public class Individual implements Comparable<Individual> {
     //TODO make this mutate instead
     public void initializeRandom() {
 
+        initializeLevel();
+
         for (int row = borderThickness; row < (height - borderThickness); row++) {
             for (int col = borderThickness; col < (width - borderThickness); col++) {
                 if (random.nextDouble() < RANDOM_FILL_FACTOR) {
@@ -92,7 +82,15 @@ public class Individual implements Comparable<Individual> {
                 }
             }
         }
-        initControllers();
+        initializeControllers();
+    }
+
+    private void initializeLevel() {
+        borderThickness = 0;
+        if (hasSolidSprites()) {
+            addBorder();
+            borderThickness = 1;
+        }
     }
 
     //TODO add other mutation outcomes (delete, swap)
@@ -115,7 +113,7 @@ public class Individual implements Comparable<Individual> {
 
     //TODO make it around a point, not a row/col
     //do a crossover around a random row or column
-    public Iterable<Individual> crossOver(Individual partner) {
+    public ArrayList<Individual> crossOver(Individual partner) {
         ArrayList<Individual> children = new ArrayList<>(2);
         Individual child1 = new Individual();
         Individual child2 = new Individual();
@@ -326,7 +324,7 @@ public class Individual implements Comparable<Individual> {
         return steps;
     }
 
-    private void initControllers() {
+    private void initializeControllers() {
         doNothingController = new controllers.singlePlayer.doNothing.
                 Agent(getStateObservation().copy(), null);
         oneStepLookAheadController = new controllers.singlePlayer.sampleonesteplookahead.
@@ -347,6 +345,19 @@ public class Individual implements Comparable<Individual> {
 
     public String getLevelString() {
         return toString();
+    }
+
+    public Individual clone() {
+        Individual clone = new Individual();
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                clone.level[row][col] = this.level[row][col];
+            }
+        }
+
+        clone.initializeControllers();
+        return clone;
     }
 
     @Override

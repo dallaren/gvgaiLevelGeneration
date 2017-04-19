@@ -30,11 +30,20 @@ public class Shared {
     //the number of best individuals to keep
     public static final int ELITE_SIZE = 2;
 
-    //the percentage of the level to be filled on initialization
-    public static final double RANDOM_FILL_FACTOR = 0.20;
+    //the amount of times an individual is mutated when using random initialization
+    public static final double INITIAL_MUTATION_AMOUNT = 50;
 
     //the probability of a mutation happening
     public static final double MUTATION_PROB = 0.05;
+
+    //the probability of a mutation adding a random sprite
+    public static final double MUTATION_ADD_PROB = 0.75;
+
+    //the probability of a mutation swapping two tiles
+    public static final double MUTATION_SWAP_PROB = 0.15;
+
+    //the probability of a mutation deleting a random sprite
+    public static final double MUTATION_DELETE_PROB = 0.10;
 
     //the probability of a crossover happening
     public static final double CROSSOVER_PROB = 0.5;

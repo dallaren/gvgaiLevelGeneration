@@ -29,6 +29,25 @@ public class Individual implements Comparable<Individual> {
         level = new char[height][width];
     }
 
+    //TODO make this mutate instead
+    public void initializeRandom() {
+        initializeLevel();
+
+        for (int i = 0; i < INITIAL_MUTATION_AMOUNT; i++) {
+            mutate();
+        }
+
+        initializeControllers();
+    }
+
+    private void initializeLevel() {
+        borderThickness = 0;
+        if (hasSolidSprites()) {
+            addBorder();
+            borderThickness = 1;
+        }
+    }
+
     //ask the game analyzer if the game has any solid sprites to use as a border
     private boolean hasSolidSprites() {
         return !gameAnalyzer.getSolidSprites().isEmpty();
@@ -49,7 +68,7 @@ public class Individual implements Comparable<Individual> {
         }
     }
 
-    //get the mapping for a solid sprite from the game
+    //get the mapping char for a solid sprite from the game
     private char getSolidSpriteChar() {
         String solidSpriteString = gameAnalyzer.getSolidSprites().get(0);
         char solidSpriteChar = '.';
@@ -68,39 +87,52 @@ public class Individual implements Comparable<Individual> {
         return solidSpriteChar;
     }
 
-    //TODO make this mutate instead
-    public void initializeRandom() {
-
-        initializeLevel();
-
-        for (int row = borderThickness; row < (height - borderThickness); row++) {
-            for (int col = borderThickness; col < (width - borderThickness); col++) {
-                if (random.nextDouble() < RANDOM_FILL_FACTOR) {
-                    level[row][col] = getRandomCharFromLevelMapping();
-                } else {
-                    level[row][col] = '.';
-                }
-            }
-        }
-        initializeControllers();
-    }
-
-    private void initializeLevel() {
-        borderThickness = 0;
-        if (hasSolidSprites()) {
-            addBorder();
-            borderThickness = 1;
-        }
-    }
-
-    //TODO add other mutation outcomes (delete, swap)
-    //randomly mutate a single tile in the level
+    //randomly mutate a single tile in the level by either adding a sprite
+    //to a tile, swapping two tiles, or deleting a sprite from a tile
     public void mutate() {
-        int row = random.nextInt(height - 2*borderThickness) + borderThickness;
-        int col = random.nextInt(width - 2*borderThickness) + borderThickness;
 
-        level[row][col] = getRandomCharFromLevelMapping();
+        double prob = random.nextDouble();
+        if (prob < MUTATION_ADD_PROB) {
+            mutateAddSprite();
+        } else if (prob < MUTATION_SWAP_PROB + MUTATION_ADD_PROB) {
+            mutateSwapSprites();
+        } else {
+            mutateDeleteSprite();
+        }
+
         constrainLevel();
+    }
+
+    private void mutateAddSprite() {
+        Point tile = getRandomTile();
+        level[tile.y][tile.x] = getRandomCharFromLevelMapping();
+    }
+
+    private void mutateSwapSprites() {
+        Point firstTile = getRandomTile();
+        Point secondTile = getRandomTile();
+
+        //make sure that the second tile is different from the first tile
+        while (secondTile == firstTile) {
+            secondTile = getRandomTile();
+        }
+
+        char tempSprite = level[firstTile.y][firstTile.x];
+
+        level[firstTile.y][firstTile.x] = level[secondTile.y][secondTile.x];
+        level[secondTile.y][secondTile.x] = tempSprite;
+    }
+
+    private void mutateDeleteSprite() {
+        Point tile = getRandomTile();
+        level[tile.y][tile.x] = '.';
+    }
+
+    private Point getRandomTile() {
+        int x = random.nextInt(height - 2*borderThickness) + borderThickness;
+        int y = random.nextInt(height - 2*borderThickness) + borderThickness;
+
+        return new Point(x, y);
     }
 
     private char getRandomCharFromLevelMapping() {
@@ -201,8 +233,8 @@ public class Individual implements Comparable<Individual> {
 
         for (Point avatarPosition : avatarPositions) {
             if (!avatarPosition.equals(avatarToKeep)) {
-                int avatarRow = (int) avatarPosition.getY();
-                int avatarCol = (int) avatarPosition.getX();
+                int avatarRow = avatarPosition.y;
+                int avatarCol = avatarPosition.x;
                 level[avatarRow][avatarCol] = '.';
             }
         }
@@ -361,6 +393,7 @@ public class Individual implements Comparable<Individual> {
     }
 
     @Override
+    //TODO make more accurate (casting issue)
     public int compareTo(Individual that) {
         return (int)(this.fitness() - that.fitness());
     }

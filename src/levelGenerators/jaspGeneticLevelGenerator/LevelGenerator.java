@@ -5,6 +5,7 @@ import core.generator.AbstractLevelGenerator;
 import tools.ElapsedCpuTimer;
 import tools.GameAnalyzer;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class LevelGenerator extends AbstractLevelGenerator{
@@ -23,11 +24,15 @@ public class LevelGenerator extends AbstractLevelGenerator{
     private void test() {
         test = new Individual();
         Individual test2 = new Individual();
+        test2.initializeRandom();
         test.initializeRandom();
         test.mutate();
-        test.crossOver(test2);
+        ArrayList<Individual> children = test.crossover(test2);
         test.print();
-        test.fitness();
+        test2.print();
+        children.get(0).print();
+        children.get(1).print();
+        //test.fitness();
     }
 
     @Override

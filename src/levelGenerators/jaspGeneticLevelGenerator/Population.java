@@ -18,7 +18,7 @@ public class Population {
         probabilityArray = null;
         initializePopulation();
     }
-    
+
     private void initializePopulation() {
         while (population.size() <= populationSize) {
             Individual individual = new Individual();
@@ -58,7 +58,7 @@ public class Population {
         Individual child2 = parent2.clone();
 
         if (random.nextDouble() < CROSSOVER_PROB) {
-            ArrayList<Individual> children = parent1.crossOver(parent2);
+            ArrayList<Individual> children = parent1.crossover(parent2);
             child1 = children.get(0);
             child2 = children.get(1);
         }

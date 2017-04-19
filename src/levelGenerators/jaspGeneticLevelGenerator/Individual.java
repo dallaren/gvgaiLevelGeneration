@@ -143,44 +143,31 @@ public class Individual implements Comparable<Individual> {
         return chars[c];
     }
 
-    //TODO make it around a point, not a row/col
-    //do a crossover around a random row or column
-    public ArrayList<Individual> crossOver(Individual partner) {
+    public ArrayList<Individual> crossover(Individual partner) {
         ArrayList<Individual> children = new ArrayList<>(2);
         Individual child1 = new Individual();
         Individual child2 = new Individual();
 
-        //decide whether a horizontal or vertical split is to be made
-        boolean splitHorizontal = random.nextBoolean();
-        int crossOverPoint = splitHorizontal ? random.nextInt(height) : random.nextInt(width);
-
-        //child1 inherits everything above the crossOverPoint from this parent, the rest from the partner
-        //child2 inherits everything above the crossOverPoint from the partner, the rest from this parent
+        Point crossoverPoint = getRandomTile();
+        System.out.println("crossover: (" + crossoverPoint.x + "," + crossoverPoint.y + ")");
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                if (splitHorizontal) {
-                    if (row > crossOverPoint) {
-                        child1.getLevel()[row][col] = this.level[row][col];
-                        child2.getLevel()[row][col] = partner.getLevel()[row][col];
-                    } else {
-                        child2.getLevel()[row][col] = this.level[row][col];
-                        child1.getLevel()[row][col] = partner.getLevel()[row][col];
-                    }
+                if ( (row < crossoverPoint.y) || (row == crossoverPoint.y && col < crossoverPoint.x) ) {
+                    //on one side of the crossover point
+                    child1.level[row][col] = this.level[row][col];
+                    child2.level[row][col] = partner.level[row][col];
                 } else {
-                    if (col > crossOverPoint) {
-                        child1.getLevel()[row][col] = this.level[row][col];
-                        child2.getLevel()[row][col] = partner.getLevel()[row][col];
-                    } else {
-                        child2.getLevel()[row][col] = this.level[row][col];
-                        child1.getLevel()[row][col] = partner.getLevel()[row][col];
-                    }
+                    //on the other side of the crossover point
+                    child2.level[row][col] = this.level[row][col];
+                    child1.level[row][col] = partner.level[row][col];
                 }
             }
         }
 
-        //make sure the children are well-formed
         child1.constrainLevel();
         child2.constrainLevel();
+        child1.initializeControllers();
+        child2.initializeControllers();
 
         children.add(child1);
         children.add(child2);
@@ -372,8 +359,6 @@ public class Individual implements Comparable<Individual> {
         stateObservation = game.testLevel(getLevelString());
         return stateObservation;
     }
-
-    public char[][] getLevel() { return level; }
 
     public String getLevelString() {
         return toString();

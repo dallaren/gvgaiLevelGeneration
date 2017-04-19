@@ -149,7 +149,7 @@ public class Individual implements Comparable<Individual> {
         Individual child2 = new Individual();
 
         Point crossoverPoint = getRandomTile();
-        System.out.println("crossover: (" + crossoverPoint.x + "," + crossoverPoint.y + ")");
+        //System.out.println("crossover: (" + crossoverPoint.x + "," + crossoverPoint.y + ")");
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if ( (row < crossoverPoint.y) || (row == crossoverPoint.y && col < crossoverPoint.x) ) {
@@ -299,6 +299,8 @@ public class Individual implements Comparable<Individual> {
 
             //score difference
             fitness = bestState.getGameScore() - oneStepLookAheadState.getGameScore();
+        } else {
+            fitness = 1.0;
         }
 
 
@@ -381,7 +383,14 @@ public class Individual implements Comparable<Individual> {
     @Override
     //TODO make more accurate (casting issue)
     public int compareTo(Individual that) {
-        return (int)(this.fitness() - that.fitness());
+
+        if (this.fitness() - that.fitness() < EPSILON) {
+            return 0;
+        } else if (this.fitness() > that.fitness()) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 
     @Override

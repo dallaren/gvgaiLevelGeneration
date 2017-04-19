@@ -20,7 +20,7 @@ public class LevelGenerator extends AbstractLevelGenerator{
         Shared.random = new Random();
         Shared.width = 10;
         Shared.height = 10;
-        test();
+        //test();
     }
 
     private void test() {

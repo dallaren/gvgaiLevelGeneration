@@ -19,6 +19,14 @@ public class Population {
         initializePopulation();
     }
 
+    private void initializePopulation() {
+        while (population.size() <= populationSize) {
+            Individual individual = new Individual();
+            individual.initializeRandom();
+            population.add(individual);
+        }
+    }
+
     public Individual getBestSolution() {
         Collections.sort(population);
         return population.get(populationSize - 1);
@@ -29,15 +37,13 @@ public class Population {
 
         //individuals are sorted by fitness in ascending order
         Collections.sort(population);
-        Collections.reverse(population);
 
         //add the elite to the next generation
-        for (int i = 0; i < ELITE_SIZE; i++) {
+        for (int i = populationSize - ELITE_SIZE; i < POPULATION_SIZE; i++) {
             nextGeneration.add(population.get(i));
         }
 
         while (nextGeneration.size() <= populationSize) {
-
             Individual parent1 = selectIndividual();
             Individual parent2 = selectIndividual();
 
@@ -47,14 +53,6 @@ public class Population {
 
         probabilityArray = null;
         population = nextGeneration;
-    }
-
-    private void initializePopulation() {
-        while (population.size() <= populationSize) {
-            Individual individual = new Individual();
-            individual.initializeRandom();
-            population.add(individual);
-        }
     }
 
     private ArrayList<Individual> doPermutations(Individual parent1, Individual parent2) {
@@ -89,9 +87,10 @@ public class Population {
         Individual individualToReturn = null;
         double[] probabilities = getProbabilities();
         double rouletteNumber = random.nextDouble();
+        //System.out.println("roulette: " + rouletteNumber);
 
         for (int i = 0; i < populationSize; i++) {
-            if (probabilities[i] < rouletteNumber) {
+            if (rouletteNumber < probabilities[i]) {
                 individualToReturn = population.get(i);
                 break;
             }
@@ -105,13 +104,13 @@ public class Population {
             return probabilityArray;
         }
 
-        double totalFitness = 0;
+        double totalFitness = 0.0;
         for (Individual i : population) {
             totalFitness += i.fitness();
         }
 
         double[] probabilities = new double[populationSize];
-        double totalProbability = 0;
+        double totalProbability = 0.0;
         for (int i = 0; i < populationSize; i++) {
             double probability = population.get(i).fitness() / totalFitness;
             probabilities[i] = probability + totalProbability + EPSILON;

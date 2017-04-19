@@ -19,15 +19,12 @@ public class Population {
         initializePopulation();
     }
 
-    private void initializePopulation() {
-        while (population.size() <= populationSize) {
-            Individual individual = new Individual();
-            individual.initializeRandom();
-            population.add(individual);
-        }
+    public Individual getBestSolution() {
+        Collections.sort(population);
+        return population.get(populationSize - 1);
     }
 
-    private void nextGeneration() {
+    public void nextGeneration() {
         ArrayList<Individual> nextGeneration = new ArrayList<>(populationSize);
 
         //individuals are sorted by fitness in ascending order
@@ -50,6 +47,14 @@ public class Population {
 
         probabilityArray = null;
         population = nextGeneration;
+    }
+
+    private void initializePopulation() {
+        while (population.size() <= populationSize) {
+            Individual individual = new Individual();
+            individual.initializeRandom();
+            population.add(individual);
+        }
     }
 
     private ArrayList<Individual> doPermutations(Individual parent1, Individual parent2) {

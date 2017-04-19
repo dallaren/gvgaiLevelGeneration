@@ -14,6 +14,7 @@ import java.util.*;
 import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
 
 public class Individual implements Comparable<Individual> {
+
     private char[][] level;
     private boolean calculated;
     private double fitness;
@@ -29,7 +30,6 @@ public class Individual implements Comparable<Individual> {
         level = new char[height][width];
     }
 
-    //TODO make this mutate instead
     public void initializeRandom() {
         initializeLevel();
 
@@ -286,6 +286,7 @@ public class Individual implements Comparable<Individual> {
         double constraintFitness = combinedConstraints.checkConstraint();
         System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + minDoNothingSteps + " coverPercentage:" + coverPercentage + " bestPlayer:" + bestState.getGameWinner());
 
+        //TODO weight the constraints
         if (constraintFitness >= 1) {
             StateObservation oneStepLookAheadState = null;
             for (int i = 0; i < REPETITION_AMOUNT; i++) {

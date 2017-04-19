@@ -8,6 +8,8 @@ import tools.GameAnalyzer;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
+
 public class LevelGenerator extends AbstractLevelGenerator{
 
     Individual test;
@@ -38,6 +40,16 @@ public class LevelGenerator extends AbstractLevelGenerator{
     @Override
     public String generateLevel(GameDescription game, ElapsedCpuTimer elapsedTimer) {
 
-        return test.toString();
+        Population population = new Population(POPULATION_SIZE);
+
+        for (int generation = 1; generation < GENERATION_AMOUNT; generation++) {
+            System.out.println("Generation #" + generation);
+            population.nextGeneration();
+            System.out.println("elapsed minutes: " + elapsedTimer.elapsedMinutes());
+        }
+
+        return population.getBestSolution().getLevelString();
+
+        //return test.toString();
     }
 }

@@ -25,7 +25,15 @@ public class Shared {
     //the maximum size (width or height) of a level
     public static final int MAX_SIZE = 18;
 
+    //width of the level being generated
+    public static int width;
+
+    //height of the level being generated
+    public static int height;
+
     public static final int POPULATION_SIZE = 50;
+
+    public static final int GENERATION_AMOUNT = 5;
 
     //the number of best individuals to keep
     public static final int ELITE_SIZE = 2;
@@ -71,10 +79,4 @@ public class Shared {
 
     //a small constant value
     public static final double EPSILON = 1.0e-9;
-
-    //width of the level being generated
-    public static int width;
-
-    //height of the level being generated
-    public static int height;
 }

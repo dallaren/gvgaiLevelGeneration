@@ -20,7 +20,7 @@ public class Population {
     }
 
     private void initializePopulation() {
-        while (population.size() <= populationSize) {
+        while (population.size() < populationSize) {
             Individual individual = new Individual();
             individual.initializeRandom();
             population.add(individual);
@@ -87,9 +87,10 @@ public class Population {
         Individual individualToReturn = null;
         double[] probabilities = getProbabilities();
         double rouletteNumber = random.nextDouble();
-        //System.out.println("roulette: " + rouletteNumber);
+        System.out.println("roulette: " + rouletteNumber);
 
         for (int i = 0; i < populationSize; i++) {
+            System.out.println(probabilities[i]);
             if (rouletteNumber < probabilities[i]) {
                 individualToReturn = population.get(i);
                 break;

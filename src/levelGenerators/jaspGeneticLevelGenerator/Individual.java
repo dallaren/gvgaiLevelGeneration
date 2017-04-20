@@ -2,7 +2,6 @@ package levelGenerators.jaspGeneticLevelGenerator;
 
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
-import levelGenerators.constraints.CombinedConstraints;
 import ontology.Types;
 
 import tools.ElapsedCpuTimer;
@@ -246,68 +245,98 @@ public class Individual implements Comparable<Individual> {
         ArrayList<Types.ACTIONS> bestSolution = bestController.getSolution();
         StateObservation bestState = bestController.getFinalState();
 
-        StateObservation doNothingState = null;
-        int minDoNothingSteps = Integer.MAX_VALUE;
-        //play the game a number of times with the doNothing agent
-        for (int i = 0; i < REPETITION_AMOUNT; i++) {
-            StateObservation tempState = stateObservation.copy();
-            int steps = getControllerResult(doNothingController, tempState, bestSolution.size());
-            if (steps < minDoNothingSteps) {
-                minDoNothingSteps = steps;
-                doNothingState = tempState;
-            }
-        }
+        StateObservation doNothingState = getDoNothingResults(bestSolution.size());
+        int doNothingSteps = doNothingState.getGameTick();
 
-        HashMap<String, Object> constraintParameters = new HashMap<>();
-        constraintParameters.put("minSolutionLength", MIN_SOLUTION_LENGTH);
-        constraintParameters.put("solutionLength", bestSolution.size());
-        constraintParameters.put("bestPlayer", bestState.getGameWinner());
-        constraintParameters.put("minDoNothingSteps", MIN_DO_NOTHING_STEPS);
-        constraintParameters.put("doNothingSteps", minDoNothingSteps);
-        constraintParameters.put("doNothingState", doNothingState.getGameWinner());
-        constraintParameters.put("minCoverPercentage", MIN_COVER_PERCENTAGE);
-        constraintParameters.put("maxCoverPercentage", MAX_COVER_PERCENTAGE);
+        //TODO adaptive deletion prob? use cover percentage
 
-        double coverPercentage = getCoverPercentage();
-        constraintParameters.put("coverPercentage", coverPercentage);
+        //the best controller MUST win and the doNothing controller MUST lose
+        if (bestPlayerWins(bestState) && doNothingPlayerDoesNotWin(doNothingState)) {
 
-        CombinedConstraints combinedConstraints = new CombinedConstraints();
+            //TODO weight the constraints
+            double oneStepLookAheadScore = getOneStepLookAheadScore(bestSolution.size());
+            double scoreDifference = bestState.getGameScore() - oneStepLookAheadScore;
 
-        String[] constraints = new String[] {
-                "SolutionLengthConstraint",
-                "WinConstraint",
-                "DeathConstraint",
-                "CoverPercentageConstraint"
-        };
-
-        combinedConstraints.addConstraints(constraints);
-        combinedConstraints.setParameters(constraintParameters);
-
-        double constraintFitness = combinedConstraints.checkConstraint();
-        System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + minDoNothingSteps + " coverPercentage:" + coverPercentage + " bestPlayer:" + bestState.getGameWinner());
-
-        //TODO weight the constraints
-        if (constraintFitness >= 1) {
-            StateObservation oneStepLookAheadState = null;
-            for (int i = 0; i < REPETITION_AMOUNT; i++) {
-                StateObservation tempState = stateObservation.copy();
-                getControllerResult(oneStepLookAheadController, tempState, bestSolution.size());
-                if (oneStepLookAheadState == null || tempState.getGameScore() > oneStepLookAheadState.getGameScore()) {
-                    oneStepLookAheadState = tempState;
-                }
-            }
-
-            //score difference
-            fitness = bestState.getGameScore() - oneStepLookAheadState.getGameScore();
+            fitness = scoreDifference*coverageConstraint()*doNothingConstraint(doNothingSteps)*solutionLengthConstraint(bestSolution.size());
         } else {
             fitness = 1.0;
         }
 
+        System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + doNothingSteps + " coverPercentage:" + getCoverPercentage() + " bestPlayer:" + bestState.getGameWinner() + " fitness: " + fitness);
 
         cleanUpControllers();
 
         calculated = true;
         return fitness;
+    }
+
+    private StateObservation getDoNothingResults(int maxSteps) {
+        StateObservation controllerState = null;
+
+        int minDoNothingSteps = Integer.MAX_VALUE;
+        //play the game a number of times with the given agent
+        for (int i = 0; i < REPETITION_AMOUNT; i++) {
+            StateObservation tempState = stateObservation.copy();
+            int steps = getControllerSteps(doNothingController, tempState, maxSteps);
+            if (steps < minDoNothingSteps) {
+                minDoNothingSteps = steps;
+                controllerState = tempState;
+            }
+        }
+
+        return controllerState;
+    }
+
+    private double getOneStepLookAheadScore(int maxSteps) {
+        StateObservation oneStepLookAheadState = null;
+        for (int i = 0; i < REPETITION_AMOUNT; i++) {
+            StateObservation tempState = stateObservation.copy();
+            getControllerSteps(oneStepLookAheadController, tempState, maxSteps);
+            if (oneStepLookAheadState == null || tempState.getGameScore() > oneStepLookAheadState.getGameScore()) {
+                oneStepLookAheadState = tempState;
+            }
+        }
+
+        return oneStepLookAheadState.getGameScore();
+    }
+
+    private double coverageConstraint() {
+        double coverPercentage = getCoverPercentage();
+
+        if (MIN_COVER_PERCENTAGE < coverPercentage && coverPercentage < MAX_COVER_PERCENTAGE) {
+            return 1.0;
+        }
+
+        if (MAX_COVER_PERCENTAGE < coverPercentage) {
+            return 1 - Math.sqrt(coverPercentage - MAX_COVER_PERCENTAGE);
+        }
+
+        return 0.0;
+    }
+
+    //heavily punishes, but does not exclude, levels that do not adhere to the doNothing constraint
+    private double doNothingConstraint(int steps) {
+        if (MIN_DO_NOTHING_STEPS < steps) {
+            return 1.0;
+        } else {
+            return 1.0/(MIN_DO_NOTHING_STEPS - steps);
+        }
+    }
+
+    private double solutionLengthConstraint(int solutionLength) {
+        if (MIN_SOLUTION_LENGTH < solutionLength) {
+            return 1.0;
+        } else {
+            return (double)solutionLength / MIN_SOLUTION_LENGTH;
+        }
+    }
+
+    private boolean bestPlayerWins(StateObservation bestState) {
+        return bestState.getGameWinner() == Types.WINNER.PLAYER_WINS;
+    }
+
+    private boolean doNothingPlayerDoesNotWin(StateObservation doNothingState) {
+        return doNothingState.getGameWinner() != Types.WINNER.PLAYER_WINS;
     }
 
     private void cleanUpControllers() {
@@ -333,7 +362,7 @@ public class Individual implements Comparable<Individual> {
         return sprites / ((width-borderThickness)*(height-borderThickness));
     }
 
-    private int getControllerResult(AbstractPlayer controller, StateObservation state, int maxSteps) {
+    private int getControllerSteps(AbstractPlayer controller, StateObservation state, int maxSteps) {
         int steps;
 
         for (steps = 0; steps < maxSteps; steps++) {

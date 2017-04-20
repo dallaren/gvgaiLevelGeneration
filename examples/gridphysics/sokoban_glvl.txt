@@ -7,12 +7,12 @@ LevelMapping
 
 LevelDescription
 wwwwwwwwww
-w......10w
-w.1.....0w
-w.0.A...0w
-w...0....w
-w.1.....1w
-w.....0..w
-w...w....w
-w00......w
+w..0.01..w
+w..1.....w
+w..1.....w
+w........w
+w0..1....w
+w...100..w
+w........w
+w1.A..0..w
 wwwwwwwwww

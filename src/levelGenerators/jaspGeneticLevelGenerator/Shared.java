@@ -60,13 +60,13 @@ public class Shared {
     public static final long MAX_STEP_TIME = 50;
 
     //the maximum allowed time for evaluating fitness (in ms)
-    public static final long EVALUATION_TIME = 100;
+    public static final long EVALUATION_TIME = 10000;
 
     //the amount of times the test controllers play the level
     public static final int REPETITION_AMOUNT = 50;
 
     //the minimum solution length of the level
-    public static final int MIN_SOLUTION_LENGTH = 150;
+    public static final int MIN_SOLUTION_LENGTH = 100;
 
     //the minimum amount of steps the doNothing agent must be able to survive
     public static final int MIN_DO_NOTHING_STEPS = 50;

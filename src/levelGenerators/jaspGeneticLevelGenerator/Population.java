@@ -43,7 +43,7 @@ public class Population {
             nextGeneration.add(population.get(i));
         }
 
-        while (nextGeneration.size() <= populationSize) {
+        while (nextGeneration.size() < populationSize) {
             Individual parent1 = selectIndividual();
             Individual parent2 = selectIndividual();
 
@@ -87,10 +87,9 @@ public class Population {
         Individual individualToReturn = null;
         double[] probabilities = getProbabilities();
         double rouletteNumber = random.nextDouble();
-        System.out.println("roulette: " + rouletteNumber);
+        //System.out.println("roulette: " + rouletteNumber);
 
         for (int i = 0; i < populationSize; i++) {
-            System.out.println(probabilities[i]);
             if (rouletteNumber < probabilities[i]) {
                 individualToReturn = population.get(i);
                 break;

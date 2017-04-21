@@ -36,7 +36,7 @@ public class Individual implements Comparable<Individual> {
             mutate();
         }
 
-        initializeControllers();
+        //initializeControllers();
     }
 
     private void initializeLevel() {
@@ -165,8 +165,8 @@ public class Individual implements Comparable<Individual> {
 
         child1.constrainLevel();
         child2.constrainLevel();
-        child1.initializeControllers();
-        child2.initializeControllers();
+        //child1.initializeControllers();
+        //child2.initializeControllers();
 
         children.add(child1);
         children.add(child2);
@@ -235,31 +235,31 @@ public class Individual implements Comparable<Individual> {
     }
 
     private double calculateFitness() {
-        //play a single game with the best controller
-        //TODO slow this guy down a little bit, a tad too inhuman
-        StepController bestController = new StepController(MaastController, MAX_STEP_TIME);
-        ElapsedCpuTimer timer = new ElapsedCpuTimer();
-        timer.setMaxTimeMillis(EVALUATION_TIME);
-        bestController.playGame(stateObservation.copy(), timer);
+
+        initializeControllers();
+
+        StepController bestController = getBestControllerResults();
 
         ArrayList<Types.ACTIONS> bestSolution = bestController.getSolution();
         StateObservation bestState = bestController.getFinalState();
 
-        StateObservation doNothingState = getDoNothingResults(bestSolution.size());
+        StateObservation doNothingState = getDoNothingControllerState(bestSolution.size());
         int doNothingSteps = doNothingState.getGameTick();
 
         //TODO adaptive deletion prob? use cover percentage
-
         //the best controller MUST win and the doNothing controller MUST lose
         if (bestPlayerWins(bestState) && doNothingPlayerDoesNotWin(doNothingState)) {
 
             //TODO weight the constraints
-            double oneStepLookAheadScore = getOneStepLookAheadScore(bestSolution.size());
+            double oneStepLookAheadScore = getOneStepLookAheadControllerScore(bestSolution.size());
             double scoreDifference = bestState.getGameScore() - oneStepLookAheadScore;
 
-            fitness = scoreDifference*coverageConstraint()*doNothingConstraint(doNothingSteps)*solutionLengthConstraint(bestSolution.size());
+            System.out.print("scoreDiff:" + scoreDifference);
+            System.out.println(" coverage:" + coverageConstraint() + " doNoth:" + doNothingConstraint(doNothingSteps) + " solution:" + solutionLengthConstraint(bestSolution.size()));
+
+            fitness = 1 + scoreDifference*coverageConstraint()*doNothingConstraint(doNothingSteps)*solutionLengthConstraint(bestSolution.size());
         } else {
-            fitness = 1.0;
+            fitness = coverageConstraint();
         }
 
         System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + doNothingSteps + " coverPercentage:" + getCoverPercentage() + " bestPlayer:" + bestState.getGameWinner() + " fitness: " + fitness);
@@ -270,7 +270,18 @@ public class Individual implements Comparable<Individual> {
         return fitness;
     }
 
-    private StateObservation getDoNothingResults(int maxSteps) {
+    private StepController getBestControllerResults() {
+        StepController bestController = new StepController(MaastController, MAX_STEP_TIME);
+
+        ElapsedCpuTimer timer = new ElapsedCpuTimer();
+        timer.setMaxTimeMillis(EVALUATION_TIME);
+
+        bestController.playGame(stateObservation.copy(), timer);
+
+        return bestController;
+    }
+
+    private StateObservation getDoNothingControllerState(int maxSteps) {
         StateObservation controllerState = null;
 
         int minDoNothingSteps = Integer.MAX_VALUE;
@@ -287,7 +298,7 @@ public class Individual implements Comparable<Individual> {
         return controllerState;
     }
 
-    private double getOneStepLookAheadScore(int maxSteps) {
+    private double getOneStepLookAheadControllerScore(int maxSteps) {
         StateObservation oneStepLookAheadState = null;
         for (int i = 0; i < REPETITION_AMOUNT; i++) {
             StateObservation tempState = stateObservation.copy();
@@ -405,7 +416,7 @@ public class Individual implements Comparable<Individual> {
             }
         }
 
-        clone.initializeControllers();
+        //clone.initializeControllers();
         return clone;
     }
 

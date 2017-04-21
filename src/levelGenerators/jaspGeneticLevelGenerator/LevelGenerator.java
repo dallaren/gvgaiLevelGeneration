@@ -18,6 +18,8 @@ public class LevelGenerator extends AbstractLevelGenerator{
         Shared.game = game;
         Shared.gameAnalyzer = new GameAnalyzer(game);
         Shared.random = new Random();
+
+        //TODO do something with these
         Shared.width = 10;
         Shared.height = 10;
         //test();
@@ -49,7 +51,5 @@ public class LevelGenerator extends AbstractLevelGenerator{
         }
 
         return population.getBestSolution().getLevelString();
-
-        //return test.toString();
     }
 }

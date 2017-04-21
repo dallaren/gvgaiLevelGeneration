@@ -7,19 +7,20 @@ import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
 
 public class Population {
 
-    private int populationSize;
-
     private ArrayList<Individual> population;
+    //private int populationSize;
+
     private double[] probabilityArray;
 
     public Population(int size) {
-        populationSize = size;
-        population = new ArrayList<>(populationSize);
+        //TODO is this needed
+        //populationSize = size;
+        population = new ArrayList<>(size);
         probabilityArray = null;
-        initializePopulation();
+        initializePopulation(size);
     }
 
-    private void initializePopulation() {
+    private void initializePopulation(int populationSize) {
         while (population.size() < populationSize) {
             Individual individual = new Individual();
             individual.initializeRandom();
@@ -29,30 +30,37 @@ public class Population {
 
     public Individual getBestSolution() {
         Collections.sort(population);
-        return population.get(populationSize - 1);
+        return population.get(population.size() - 1);
     }
 
     public void nextGeneration() {
-        ArrayList<Individual> nextGeneration = new ArrayList<>(populationSize);
+        ArrayList<Individual> nextGeneration = new ArrayList<>(population.size());
 
         //individuals are sorted by fitness in ascending order
         Collections.sort(population);
 
-        //add the elite to the next generation
-        for (int i = populationSize - ELITE_SIZE; i < POPULATION_SIZE; i++) {
-            nextGeneration.add(population.get(i));
-        }
+        addEliteToNextGeneration(nextGeneration);
 
-        while (nextGeneration.size() < populationSize) {
+        while (nextGeneration.size() < population.size()) {
             Individual parent1 = selectIndividual();
             Individual parent2 = selectIndividual();
 
             ArrayList<Individual> children = doPermutations(parent1, parent2);
-            nextGeneration.addAll(children);
+            for (Individual child : children) {
+                if (nextGeneration.size() < population.size()) {
+                    nextGeneration.add(child);
+                }
+            }
         }
 
         probabilityArray = null;
         population = nextGeneration;
+    }
+
+    private void addEliteToNextGeneration(ArrayList<Individual> nextGeneration) {
+        for (int i = population.size() - ELITE_SIZE; i < population.size(); i++) {
+            nextGeneration.add(population.get(i));
+        }
     }
 
     private ArrayList<Individual> doPermutations(Individual parent1, Individual parent2) {
@@ -83,18 +91,21 @@ public class Population {
 
     //select an Individual using fitness proportionate selection (roulette selection)
     private Individual selectIndividual() {
-
         Individual individualToReturn = null;
+
         double[] probabilities = getProbabilities();
         double rouletteNumber = random.nextDouble();
-        //System.out.println("roulette: " + rouletteNumber);
+        System.out.println("Roulette: " + rouletteNumber);
 
-        for (int i = 0; i < populationSize; i++) {
+        for (int i = 0; i < population.size(); i++) {
             if (rouletteNumber < probabilities[i]) {
                 individualToReturn = population.get(i);
                 break;
             }
         }
+
+        System.out.println("size: " + population.size());
+        System.out.println("last: " + probabilities[population.size() - 1]);
 
         return individualToReturn;
     }
@@ -105,13 +116,13 @@ public class Population {
         }
 
         double totalFitness = 0.0;
-        for (Individual i : population) {
-            totalFitness += i.fitness();
+        for (Individual individual : population) {
+            totalFitness += individual.fitness();
         }
 
-        double[] probabilities = new double[populationSize];
+        double[] probabilities = new double[population.size()];
         double totalProbability = 0.0;
-        for (int i = 0; i < populationSize; i++) {
+        for (int i = 0; i < population.size(); i++) {
             double probability = population.get(i).fitness() / totalFitness;
             probabilities[i] = probability + totalProbability + EPSILON;
             totalProbability += probability;

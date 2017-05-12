@@ -20,10 +20,10 @@ public class Shared {
     public static GameAnalyzer gameAnalyzer;
 
     //the minimum size (width or height) of a level
-    public static final int MIN_SIZE = 6;
+    public static final int MIN_SIZE = 8;
 
     //the maximum size (width or height) of a level
-    public static final int MAX_SIZE = 18;
+    public static final int MAX_SIZE = 14;
 
     //width of the level being generated
     public static int width;
@@ -33,13 +33,13 @@ public class Shared {
 
     public static final int POPULATION_SIZE = 50;
 
-    public static final int GENERATION_AMOUNT = 5;
+    public static final int GENERATION_AMOUNT = 3;
 
     //the number of best individuals to keep
     public static final int ELITE_SIZE = 1;
 
     //the amount of times an individual is mutated when using random initialization
-    public static final double INITIAL_MUTATION_AMOUNT = 50;
+    public static final double INITIAL_MUTATION_AMOUNT = 100;
 
     //the probability of a mutation happening
     public static final double MUTATION_PROB = 0.05;
@@ -61,7 +61,7 @@ public class Shared {
 
     //TODO set this to 15 sec
     //the maximum allowed time for evaluating fitness (in ms)
-    public static final long EVALUATION_TIME = 100;
+    public static final long EVALUATION_TIME = 10000;
 
     //the amount of times the test controllers play the level
     public static final int REPETITION_AMOUNT = 50;
@@ -73,10 +73,10 @@ public class Shared {
     public static final int MIN_DO_NOTHING_STEPS = 50;
 
     //the minimum percentage of the level to be covered
-    public static final double MIN_COVER_PERCENTAGE = 0.1;
+    public static final double MIN_COVER_PERCENTAGE = 0.15;
 
     //the maximum percentage of the level to be covered
-    public static final double MAX_COVER_PERCENTAGE = 0.4;
+    public static final double MAX_COVER_PERCENTAGE = 0.5;
 
     //a small constant value
     public static final double EPSILON = 1.0e-9;

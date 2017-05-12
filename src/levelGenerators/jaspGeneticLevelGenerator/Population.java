@@ -8,13 +8,10 @@ import static levelGenerators.jaspGeneticLevelGenerator.Shared.*;
 public class Population {
 
     private ArrayList<Individual> population;
-    //private int populationSize;
 
     private double[] probabilityArray;
 
     public Population(int size) {
-        //TODO is this needed
-        //populationSize = size;
         population = new ArrayList<>(size);
         probabilityArray = null;
         initializePopulation(size);
@@ -30,6 +27,9 @@ public class Population {
 
     public Individual getBestSolution() {
         Collections.sort(population);
+        System.out.println("last individual: " + population.get(population.size() - 1).fitness());
+        System.out.println("first individual: " + population.get(0).fitness());
+
         return population.get(population.size() - 1);
     }
 
@@ -37,7 +37,18 @@ public class Population {
         ArrayList<Individual> nextGeneration = new ArrayList<>(population.size());
 
         //individuals are sorted by fitness in ascending order
+        for (Individual i : population) {
+            i.fitness();
+        }
+        System.out.println("BEFORE SORT");
+        for (Individual i : population) {
+            System.out.println(i.fitness());
+        }
         Collections.sort(population);
+        System.out.println("AFTER SORT");
+        for (Individual i : population) {
+            System.out.println(i.fitness());
+        }
 
         addEliteToNextGeneration(nextGeneration);
 

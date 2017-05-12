@@ -1,5 +1,6 @@
 package levelGenerators.jaspGeneticLevelGenerator;
 
+import core.game.GameDescription;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
@@ -128,7 +129,7 @@ public class Individual implements Comparable<Individual> {
     }
 
     private Point getRandomTile() {
-        int x = random.nextInt(height - 2*borderThickness) + borderThickness;
+        int x = random.nextInt(width - 2*borderThickness) + borderThickness;
         int y = random.nextInt(height - 2*borderThickness) + borderThickness;
 
         return new Point(x, y);
@@ -142,13 +143,13 @@ public class Individual implements Comparable<Individual> {
         return chars[c];
     }
 
+    //do a 1-point crossover with a partner, spawning two children
     public ArrayList<Individual> crossover(Individual partner) {
         ArrayList<Individual> children = new ArrayList<>(2);
         Individual child1 = new Individual();
         Individual child2 = new Individual();
 
         Point crossoverPoint = getRandomTile();
-        //System.out.println("crossover: (" + crossoverPoint.x + "," + crossoverPoint.y + ")");
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if ( (row < crossoverPoint.y) || (row == crossoverPoint.y && col < crossoverPoint.x) ) {
@@ -165,8 +166,6 @@ public class Individual implements Comparable<Individual> {
 
         child1.constrainLevel();
         child2.constrainLevel();
-        //child1.initializeControllers();
-        //child2.initializeControllers();
 
         children.add(child1);
         children.add(child2);
@@ -246,23 +245,20 @@ public class Individual implements Comparable<Individual> {
         StateObservation doNothingState = getDoNothingControllerState(bestSolution.size());
         int doNothingSteps = doNothingState.getGameTick();
 
-        //TODO adaptive deletion prob? use cover percentage
-        //the best controller MUST win and the doNothing controller MUST lose
+        //the best controller MUST win and the doNothing controller MUST not win
         if (bestPlayerWins(bestState) && doNothingPlayerDoesNotWin(doNothingState)) {
 
-            //TODO weight the constraints
             double oneStepLookAheadScore = getOneStepLookAheadControllerScore(bestSolution.size());
             double scoreDifference = bestState.getGameScore() - oneStepLookAheadScore;
 
+            fitness = 1 + (1 + scoreDifference)*coverageConstraint()*doNothingConstraint(doNothingSteps)*solutionLengthConstraint(bestSolution.size());
+
+            System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + doNothingSteps + " coverPercentage:" + getCoverPercentage() + " bestPlayer:" + bestState.getGameWinner() + " fitness: " + fitness);
             System.out.print("scoreDiff:" + scoreDifference);
             System.out.println(" coverage:" + coverageConstraint() + " doNoth:" + doNothingConstraint(doNothingSteps) + " solution:" + solutionLengthConstraint(bestSolution.size()));
-
-            fitness = 1 + scoreDifference*coverageConstraint()*doNothingConstraint(doNothingSteps)*solutionLengthConstraint(bestSolution.size());
         } else {
-            fitness = coverageConstraint();
+            fitness = coverageConstraint()*terminationSetConstraint();
         }
-
-        System.out.println("SolutionLength:" + bestSolution.size() + " doNothingSteps:" + doNothingSteps + " coverPercentage:" + getCoverPercentage() + " bestPlayer:" + bestState.getGameWinner() + " fitness: " + fitness);
 
         cleanUpControllers();
 
@@ -314,12 +310,12 @@ public class Individual implements Comparable<Individual> {
     private double coverageConstraint() {
         double coverPercentage = getCoverPercentage();
 
-        if (MIN_COVER_PERCENTAGE < coverPercentage && coverPercentage < MAX_COVER_PERCENTAGE) {
+        if (MIN_COVER_PERCENTAGE <= coverPercentage && coverPercentage <= MAX_COVER_PERCENTAGE) {
             return 1.0;
         }
 
         if (MAX_COVER_PERCENTAGE < coverPercentage) {
-            return 1 - Math.sqrt(coverPercentage - MAX_COVER_PERCENTAGE);
+            return 1.0 - Math.sqrt(coverPercentage - MAX_COVER_PERCENTAGE);
         }
 
         return 0.0;
@@ -327,7 +323,7 @@ public class Individual implements Comparable<Individual> {
 
     //heavily punishes, but does not exclude, levels that do not adhere to the doNothing constraint
     private double doNothingConstraint(int steps) {
-        if (MIN_DO_NOTHING_STEPS < steps) {
+        if (steps >= MIN_DO_NOTHING_STEPS) {
             return 1.0;
         } else {
             return 1.0/(MIN_DO_NOTHING_STEPS - steps);
@@ -335,11 +331,45 @@ public class Individual implements Comparable<Individual> {
     }
 
     private double solutionLengthConstraint(int solutionLength) {
-        if (MIN_SOLUTION_LENGTH < solutionLength) {
+        if (solutionLength >= MIN_SOLUTION_LENGTH) {
             return 1.0;
         } else {
             return (double)solutionLength / MIN_SOLUTION_LENGTH;
         }
+    }
+
+    private double terminationSetConstraint() {
+        ArrayList<GameDescription.TerminationData> terminationData = game.getTerminationConditions();
+        HashSet<String> terminationSpriteSet = new HashSet<>();
+
+        for (GameDescription.TerminationData terminationCondition : terminationData) {
+            terminationSpriteSet.addAll(terminationCondition.sprites);
+        }
+
+        HashSet<Character> gameSpriteSet = new HashSet<>();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                char sprite = level[row][col];
+                if (sprite != '.') {
+                    gameSpriteSet.add(sprite);
+                }
+            }
+        }
+
+        int spritesInTerminationSet = terminationSpriteSet.size();
+        double spritesFromTerminationSetInLevel = 0.0;
+        for (Map.Entry<Character, ArrayList<String>> entry : game.getLevelMapping().entrySet()) {
+            if (gameSpriteSet.contains(entry.getKey())) {
+                for (String sprite : entry.getValue()) {
+                    if (terminationSpriteSet.contains(sprite)) {
+                        spritesFromTerminationSetInLevel++;
+                        terminationSpriteSet.remove(sprite);
+                    }
+                }
+            }
+        }
+
+        return spritesFromTerminationSetInLevel / spritesInTerminationSet;
     }
 
     private boolean bestPlayerWins(StateObservation bestState) {
@@ -370,7 +400,7 @@ public class Individual implements Comparable<Individual> {
             }
         }
 
-        return sprites / ((width-borderThickness)*(height-borderThickness));
+        return sprites / ((width - 2*borderThickness)*(height - 2*borderThickness));
     }
 
     private int getControllerSteps(AbstractPlayer controller, StateObservation state, int maxSteps) {
@@ -389,8 +419,10 @@ public class Individual implements Comparable<Individual> {
     private void initializeControllers() {
         doNothingController = new controllers.singlePlayer.doNothing.
                 Agent(getStateObservation().copy(), null);
+
         oneStepLookAheadController = new controllers.singlePlayer.sampleonesteplookahead.
                 Agent(getStateObservation().copy(), null);
+
         MaastController = new MaastCTS2.Agent(getStateObservation().copy(), new ElapsedCpuTimer());
     }
 
@@ -407,6 +439,7 @@ public class Individual implements Comparable<Individual> {
         return toString();
     }
 
+    @Override
     public Individual clone() {
         Individual clone = new Individual();
 
@@ -416,15 +449,13 @@ public class Individual implements Comparable<Individual> {
             }
         }
 
-        //clone.initializeControllers();
         return clone;
     }
 
     @Override
-    //TODO make more accurate (casting issue)
     public int compareTo(Individual that) {
 
-        if (this.fitness() - that.fitness() < EPSILON) {
+        if (Math.abs(this.fitness() - that.fitness()) < EPSILON) {
             return 0;
         } else if (this.fitness() > that.fitness()) {
             return 1;

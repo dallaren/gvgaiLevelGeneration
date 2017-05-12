@@ -19,9 +19,8 @@ public class LevelGenerator extends AbstractLevelGenerator{
         Shared.gameAnalyzer = new GameAnalyzer(game);
         Shared.random = new Random();
 
-        //TODO do something with these
-        Shared.width = 10;
-        Shared.height = 10;
+        Shared.width = MIN_SIZE + random.nextInt(MAX_SIZE - MIN_SIZE + 1);
+        Shared.height = MIN_SIZE + random.nextInt(MAX_SIZE - MIN_SIZE + 1);
         //test();
     }
 
@@ -47,6 +46,7 @@ public class LevelGenerator extends AbstractLevelGenerator{
         for (int generation = 1; generation < GENERATION_AMOUNT; generation++) {
             System.out.println("Generation #" + generation);
             population.nextGeneration();
+            System.out.println("Best solution fitness: " + population.getBestSolution().fitness());
             System.out.println("elapsed minutes: " + elapsedTimer.elapsedMinutes());
         }
 

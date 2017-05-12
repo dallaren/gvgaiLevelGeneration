@@ -28,16 +28,7 @@ public class Individual implements Comparable<Individual> {
 
     public Individual() {
         level = new char[height][width];
-    }
-
-    public void initializeRandom() {
         initializeLevel();
-
-        for (int i = 0; i < INITIAL_MUTATION_AMOUNT; i++) {
-            mutate();
-        }
-
-        //initializeControllers();
     }
 
     private void initializeLevel() {
@@ -45,6 +36,13 @@ public class Individual implements Comparable<Individual> {
         if (hasSolidSprites()) {
             addBorder();
             borderThickness = 1;
+        }
+    }
+
+    public void initializeRandom() {
+
+        for (int i = 0; i < INITIAL_MUTATION_AMOUNT; i++) {
+            mutate();
         }
     }
 
@@ -318,7 +316,7 @@ public class Individual implements Comparable<Individual> {
             return 1.0 - Math.sqrt(coverPercentage - MAX_COVER_PERCENTAGE);
         }
 
-        return 0.0;
+        return Math.pow(coverPercentage / MIN_COVER_PERCENTAGE, 2);
     }
 
     //heavily punishes, but does not exclude, levels that do not adhere to the doNothing constraint
@@ -358,6 +356,7 @@ public class Individual implements Comparable<Individual> {
 
         int spritesInTerminationSet = terminationSpriteSet.size();
         double spritesFromTerminationSetInLevel = 0.0;
+
         for (Map.Entry<Character, ArrayList<String>> entry : game.getLevelMapping().entrySet()) {
             if (gameSpriteSet.contains(entry.getKey())) {
                 for (String sprite : entry.getValue()) {
@@ -400,6 +399,7 @@ public class Individual implements Comparable<Individual> {
             }
         }
 
+        //System.out.println("sprites: " + sprites + " ; size: " + (width - 2*borderThickness)*(height - 2*borderThickness));
         return sprites / ((width - 2*borderThickness)*(height - 2*borderThickness));
     }
 

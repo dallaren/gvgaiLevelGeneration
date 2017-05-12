@@ -6,17 +6,13 @@ LevelMapping
     . > floor 
 
 LevelDescription
-wwwwwwwwwwww
-w..........w
-w.w..w...0.w
-w..........w
-ww1....w1..w
-w.0........w
-w.....1....w
-w..........w
-w..1......ww
-w....1...00w
-w....A...1.w
-w.....0....w
-w..........w
-wwwwwwwwwwww
+wwwwwwwwwwwww
+w...........w
+w...1..ww...w
+w.......w.A.w
+w.....0..1..w
+w.......1..1w
+w.0..1.....0w
+w00.1.....0.w
+w.0...1.....w
+wwwwwwwwwwwww

@@ -41,20 +41,20 @@ public class Shared {
     //the amount of times an individual is mutated when using random initialization
     public static final double INITIAL_MUTATION_AMOUNT = 100;
 
+    //the probability of a crossover happening
+    public static final double CROSSOVER_PROB = 0.5;
+
     //the probability of a mutation happening
     public static final double MUTATION_PROB = 0.05;
 
     //the probability of a mutation adding a random sprite
-    public static final double MUTATION_ADD_PROB = 0.30;
+    public static final double MUTATION_ADD_PROB = 0.35;
 
     //the probability of a mutation swapping two tiles
     public static final double MUTATION_SWAP_PROB = 0.20;
 
     //the probability of a mutation deleting a random sprite
-    public static final double MUTATION_DELETE_PROB = 0.50;
-
-    //the probability of a crossover happening
-    public static final double CROSSOVER_PROB = 0.5;
+    public static final double MUTATION_DELETE_PROB = 0.45;
 
     //the maximum allowed time for the step controller to evaluate a step (in ms)
     public static final long MAX_STEP_TIME = 50;
@@ -73,7 +73,7 @@ public class Shared {
     public static final int MIN_DO_NOTHING_STEPS = 50;
 
     //the minimum percentage of the level to be covered
-    public static final double MIN_COVER_PERCENTAGE = 0.15;
+    public static final double MIN_COVER_PERCENTAGE = 0.25;
 
     //the maximum percentage of the level to be covered
     public static final double MAX_COVER_PERCENTAGE = 0.5;

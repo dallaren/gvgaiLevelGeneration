@@ -21,6 +21,7 @@ public class LevelGenerator extends AbstractLevelGenerator{
 
         Shared.width = MIN_SIZE + random.nextInt(MAX_SIZE - MIN_SIZE + 1);
         Shared.height = MIN_SIZE + random.nextInt(MAX_SIZE - MIN_SIZE + 1);
+        System.out.println("W: " + width + " ; H: " + height);
         //test();
     }
 

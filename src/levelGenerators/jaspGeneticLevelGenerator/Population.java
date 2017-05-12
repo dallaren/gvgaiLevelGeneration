@@ -27,9 +27,6 @@ public class Population {
 
     public Individual getBestSolution() {
         Collections.sort(population);
-        System.out.println("last individual: " + population.get(population.size() - 1).fitness());
-        System.out.println("first individual: " + population.get(0).fitness());
-
         return population.get(population.size() - 1);
     }
 
@@ -37,18 +34,7 @@ public class Population {
         ArrayList<Individual> nextGeneration = new ArrayList<>(population.size());
 
         //individuals are sorted by fitness in ascending order
-        for (Individual i : population) {
-            i.fitness();
-        }
-        System.out.println("BEFORE SORT");
-        for (Individual i : population) {
-            System.out.println(i.fitness());
-        }
         Collections.sort(population);
-        System.out.println("AFTER SORT");
-        for (Individual i : population) {
-            System.out.println(i.fitness());
-        }
 
         addEliteToNextGeneration(nextGeneration);
 
@@ -106,7 +92,7 @@ public class Population {
 
         double[] probabilities = getProbabilities();
         double rouletteNumber = random.nextDouble();
-        System.out.println("Roulette: " + rouletteNumber);
+        //System.out.println("Roulette: " + rouletteNumber);
 
         for (int i = 0; i < population.size(); i++) {
             if (rouletteNumber < probabilities[i]) {
@@ -115,8 +101,8 @@ public class Population {
             }
         }
 
-        System.out.println("size: " + population.size());
-        System.out.println("last: " + probabilities[population.size() - 1]);
+        //System.out.println("size: " + population.size());
+        //System.out.println("last: " + probabilities[population.size() - 1]);
 
         return individualToReturn;
     }
